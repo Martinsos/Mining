@@ -11,7 +11,12 @@ STRATUM=FILL_THIS
 MAX_TEMP=80
 
 
-# Returns GPU temperature
+# Script will stop after executing MAX_TIME seconds. 
+# If TIME_LIMIT <= 0 then script will execute forever.
+MAX_TIME=${1:-0}
+
+
+# Returns GPU temperature for nvidia GPU
 function gpu_temp() {
 	nvidia-smi -q -d TEMPERATURE | grep Gpu | grep -P -o "[0-9]+"
 }
@@ -27,6 +32,7 @@ function kill_gracefully() {
 }
 
 
+START_TIME=$(date +%s)
 
 # start cudaminer
 ./cudaminer -H 1 -i 0 -l auto -C 1 -o $STRATUM -O $USERNAME.$WORKERNAME:$WORKERPASS &
@@ -36,7 +42,7 @@ MINERPID=$!
 trap "kill_gracefully $MINERPID" EXIT
 
 # Check GPU temperature and end script if GPU becomes too hot
-while true; do
+while  (($MAX_TIME <= 0 || $(date +%s) - $START_TIME < $MAX_TIME )); do
 	TEMP=`gpu_temp`
 	if [ $TEMP -gt $MAX_TEMP ]; then
 		echo "GPU temperature got over $MAX_TEMP°C! Killing cuda miner"
@@ -44,6 +50,8 @@ while true; do
 	fi
 	sleep 1
 done
+
+echo "Time limit excedeed! Killing cuda miner"
 
 
 
