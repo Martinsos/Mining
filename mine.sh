@@ -2,6 +2,8 @@
 
 # This script starts cuda miner with some basic settings.
 # If temperature of GPU gets to high, it stops mining to stop GPU from getting damaged.
+# If first parameter is set, then it is time limit in seconds and after 
+# that time elapses script will be stopped.
 
 USERNAME=FILL_THIS
 WORKERNAME=FILL_THIS
@@ -52,14 +54,3 @@ while  (($MAX_TIME <= 0 || $(date +%s) - $START_TIME < $MAX_TIME )); do
 done
 
 echo "Time limit excedeed! Killing cuda miner"
-
-
-
-
-
-
-
-
-
-
-
